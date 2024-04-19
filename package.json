@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/app/index.js",
     "build": "tsc",
     "watch": "tsc --watch"
   },
@@ -13,10 +13,17 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.8",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "module-alias": "^2.2.3"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/node": "^20.12.7"
+  },
+  "_moduleAliases": {
+    "@": "dist",
+    "@/app": "dist/app",
+    "@/domain": "dist/domain",
+    "@/factories": "dist/factories"
   }
 }
