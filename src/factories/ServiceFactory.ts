@@ -1,4 +1,5 @@
 import {
+  ICsvService,
   IFileService,
   IHttpClient,
   IPathService,
@@ -7,8 +8,10 @@ import {
 
 import {
   AxiosHttpClient,
+  CsvService,
   NodeFileService,
   NodePathService,
+  StatusService,
   ZipExtractorService,
 } from "@/services";
 
@@ -27,5 +30,12 @@ export class ServiceFactory {
 
   static createPathService(): IPathService {
     return new NodePathService();
+  }
+
+  static createCsvService(): ICsvService {
+    return new CsvService();
+  }
+  static createStatusService() {
+    return new StatusService();
   }
 }

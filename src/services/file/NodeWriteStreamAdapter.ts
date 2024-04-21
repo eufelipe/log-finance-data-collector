@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import fs from "fs";
 
+import { ENCODING } from "@/app/constants";
 import { IWriteStream } from "@/contracts";
 
 export class NodeWriteStreamAdapter
@@ -11,7 +12,8 @@ export class NodeWriteStreamAdapter
 
   constructor(path: string) {
     super();
-    this.stream = fs.createWriteStream(path);
+    this.stream = fs.createWriteStream(path, { encoding: ENCODING });
+
     this.stream.on("close", () => this.emit("close"));
     this.stream.on("drain", () => this.emit("drain"));
     this.stream.on("error", (err) => this.emit("error", err));
@@ -26,7 +28,7 @@ export class NodeWriteStreamAdapter
 
   write(
     chunk: any,
-    encoding: BufferEncoding = "utf8",
+    encoding: BufferEncoding = ENCODING,
     callback?: (error?: Error | null) => void
   ): boolean {
     return this.stream.write(chunk, encoding, callback);
@@ -34,7 +36,7 @@ export class NodeWriteStreamAdapter
 
   end(
     chunk?: any,
-    encoding: BufferEncoding = "utf8",
+    encoding: BufferEncoding = ENCODING,
     callback?: () => void
   ): void {
     this.stream.end(chunk, encoding, callback);
