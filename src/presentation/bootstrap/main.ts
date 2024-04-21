@@ -1,16 +1,30 @@
 import { ServiceFactory } from "@/factories";
 
-import CVMDataDownloader from "./CVMDataDownloader";
-import CVMReportAggregator from "./CVMReportAggregator";
+async function runDownloader() {
+  const { DataDownloaderController } = await import(
+    "@/presentation/controllers"
+  );
 
-const statusService = ServiceFactory.createStatusService();
+  const controller = new DataDownloaderController();
+  await controller.downloadData();
+}
+
+async function runAggregation() {
+  const { ReportAggregatorController } = await import(
+    "@/presentation/controllers"
+  );
+
+  const controller = new ReportAggregatorController();
+  await controller.aggregateReports();
+}
 
 (async function () {
+  const statusService = ServiceFactory.createStatusService();
   const canSetup = await statusService.canSetup();
 
   if (!canSetup) {
-    await CVMDataDownloader();
-    await CVMReportAggregator();
+    await runDownloader();
+    await runAggregation();
     await statusService.saveStatus();
   }
 })();

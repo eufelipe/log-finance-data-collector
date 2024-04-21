@@ -1,19 +1,14 @@
 import {
+  IDownloadInput,
   IFileService,
   IHttpClient,
   IPathService,
   IZipService,
 } from "@/contracts";
 
-import { IUseCase } from "@/domain";
+import { IUseCase } from "../IUseCase";
 
-export type DownloadInput = {
-  url: string;
-  file: string;
-  output: string;
-};
-
-export class CVMDataDownloaderUseCase implements IUseCase<DownloadInput, void> {
+export class DataDownloaderUseCase implements IUseCase<IDownloadInput, void> {
   constructor(
     private httpClient: IHttpClient,
     private fileService: IFileService,
@@ -22,16 +17,17 @@ export class CVMDataDownloaderUseCase implements IUseCase<DownloadInput, void> {
     private tempDir: string
   ) {}
 
-  async execute(input: DownloadInput): Promise<void> {
+  async execute(input: IDownloadInput): Promise<void> {
     await this.downloadAndExtract(input);
   }
 
-  private async downloadAndExtract(input: DownloadInput): Promise<void> {
+  private async downloadAndExtract(input: IDownloadInput): Promise<void> {
     const { url, file, output } = input;
-
     const zipPath = this.pathService.resolve(this.tempDir, file);
+
     try {
-      const responseStream = await this.httpClient.get(url + file, "stream");
+      const dataUrl = `${url}${file}`;
+      const responseStream = await this.httpClient.get(dataUrl, "stream");
       const writeStreamAdapter = await this.fileService.writeStream(zipPath);
       const nativeWriteStream = writeStreamAdapter.getWritableStream();
 
@@ -61,4 +57,4 @@ export class CVMDataDownloaderUseCase implements IUseCase<DownloadInput, void> {
   }
 }
 
-export default CVMDataDownloaderUseCase;
+export default DataDownloaderUseCase;

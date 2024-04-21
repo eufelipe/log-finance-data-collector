@@ -1,8 +1,8 @@
 import { ENCODING } from "@/app/constants";
 import { ICsvService } from "@/contracts/ICsvService";
-import { IUseCase } from "@/domain/entities/IUseCase";
+import { IUseCase } from "../IUseCase";
 
-interface ConcatCvmDataOptions {
+export interface ConcatCvmDataOptions {
   names: string[];
   baseDir: string;
   basePath: string;
@@ -14,7 +14,7 @@ interface ConcatCvmDataOptions {
   filter?: (row: any) => boolean;
 }
 
-export class CVMReportAggregatorUseCase
+export class ReportAggregatorUseCase
   implements IUseCase<ConcatCvmDataOptions, void>
 {
   options = {
@@ -66,4 +66,4 @@ export class CVMReportAggregatorUseCase
   }
 }
 
-export default CVMReportAggregatorUseCase;
+export default ReportAggregatorUseCase;
