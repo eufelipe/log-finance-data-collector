@@ -5,17 +5,15 @@ import {
   IZipService,
 } from "@/contracts";
 
-import { IUseCase } from "../entities/IUseCase";
+import { IUseCase } from "@/domain";
 
-export type DownloadDFPInput = {
+export type DownloadInput = {
   url: string;
   file: string;
   output: string;
 };
 
-export class CVMFinancialDataDownloader
-  implements IUseCase<DownloadDFPInput, void>
-{
+export class CVMDataDownloaderUseCase implements IUseCase<DownloadInput, void> {
   constructor(
     private httpClient: IHttpClient,
     private fileService: IFileService,
@@ -24,19 +22,17 @@ export class CVMFinancialDataDownloader
     private tempDir: string
   ) {}
 
-  async execute(input: DownloadDFPInput): Promise<void> {
+  async execute(input: DownloadInput): Promise<void> {
     await this.downloadAndExtract(input);
   }
 
-  private async downloadAndExtract(input: DownloadDFPInput): Promise<void> {
+  private async downloadAndExtract(input: DownloadInput): Promise<void> {
     const { url, file, output } = input;
 
     const zipPath = this.pathService.resolve(this.tempDir, file);
     try {
       const responseStream = await this.httpClient.get(url + file, "stream");
-
       const writeStreamAdapter = await this.fileService.writeStream(zipPath);
-
       const nativeWriteStream = writeStreamAdapter.getWritableStream();
 
       responseStream.pipe(nativeWriteStream);
@@ -65,4 +61,4 @@ export class CVMFinancialDataDownloader
   }
 }
 
-export default CVMFinancialDataDownloader;
+export default CVMDataDownloaderUseCase;

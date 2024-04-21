@@ -1,3 +1,3 @@
 require("module-alias/register");
 
-import "../presentation/main";
+import "../presentation/bootstrap/main";

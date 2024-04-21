@@ -1,7 +1,8 @@
-import { CVMFinancialDataDownloader, DownloadDFPInput } from "@/domain";
+import { BASE_CVM_URL, CVM_ORIGIN_RAW_DIR, TEMP_DIR } from "@/app/constants";
+import { CVMDataDownloaderUseCase, DownloadInput } from "@/domain";
 import { ServiceFactory } from "@/factories";
 
-type DownloadInput = {
+type Input = {
   url: string;
   file: string;
   output: string;
@@ -9,17 +10,14 @@ type DownloadInput = {
   endYear: number;
 };
 
-const BASE_CVM_URL = "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC";
 const YEAR_KEY = "{YEAR}";
-const BASE_DIR = "DATA/raw_data_cvm";
-const TEMP_DIR = "DATA/temp";
 
 const httpClient = ServiceFactory.createHttpClient();
 const fileService = ServiceFactory.createFileService();
 const pathService = ServiceFactory.createPathService();
 const zipService = ServiceFactory.createZipService();
 
-const downloader = new CVMFinancialDataDownloader(
+const downloader = new CVMDataDownloaderUseCase(
   httpClient,
   fileService,
   zipService,
@@ -32,12 +30,12 @@ function createDownloadInput(
   type: string,
   start?: number,
   end?: number
-): DownloadInput {
+): Input {
   const url = `${baseURL}/${type}/DADOS/`;
   const file = `${type}_cia_aberta_${YEAR_KEY}.zip`;
   const fileName = type.toLowerCase();
 
-  const output = `${BASE_DIR}/${fileName}`;
+  const output = `${CVM_ORIGIN_RAW_DIR}/${fileName}`;
 
   return {
     url,
@@ -48,38 +46,31 @@ function createDownloadInput(
   };
 }
 
-const DATA: DownloadInput[] = [
+const DATA: Input[] = [
   createDownloadInput(BASE_CVM_URL, "DFP"),
   createDownloadInput(BASE_CVM_URL, "ITR", 2011),
   createDownloadInput(BASE_CVM_URL, "FRE"),
   createDownloadInput(BASE_CVM_URL, "FCA"),
 ];
 
-async function processDownloads() {
+export default async function CVMDataDownloaderController() {
   for (const input of DATA) {
     const { startYear, endYear, url, file, output } = input;
 
     for (let year = startYear; year <= endYear; year++) {
       const fileName = file.replace(YEAR_KEY, String(year));
-
-      const downloadDFPInput: DownloadDFPInput = {
+      const downloadInput: DownloadInput = {
         url,
         file: fileName,
         output,
       };
 
-      downloader
-        .execute(downloadDFPInput)
-        .then(() => {
-          console.log(`${fileName} Successfully processed data for ${year}`);
-        })
-        .catch((error) => {
-          console.error(`Error processing data for ${year}:`, error);
-        });
+      try {
+        await downloader.execute(downloadInput);
+        console.log(`${fileName} Successfully processed data for ${year}`);
+      } catch (error) {
+        console.error(`Error processing data for ${year}:`, error);
+      }
     }
   }
 }
-
-(async function () {
-  processDownloads();
-})();
